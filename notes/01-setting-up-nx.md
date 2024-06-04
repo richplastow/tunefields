@@ -340,49 +340,59 @@ You should also see in tsconfig.base.json that 'shared-ui' has been added:
 ## Add a 'UiFooter' component to the shared-ui library
 
 ```bash
-npx nx g @nx/react:component ui-footer --project=shared-ui --directory="libs/shared/ui/src/lib/ui-footer"
-#  NX  Generating @nx/react:component
-# Option "project" is deprecated: Provide the `directory` option instead and use the `as-provided` format. The project will be determined from the directory provided. It will be removed in Nx v20.
-# ? Should this component be exported in the project? (y/N) › true
-y
-? Where should the component be generated? …
+npx nx g @nx/next:component ui-footer --directory="libs/shared/ui/src/lib/ui-footer"
+#  NX  Generating @nx/next:component
+# ? Which stylesheet format would you like to use? … 
+# CSS
+# SASS(.scss)       [ https://sass-lang.com          ]
+# LESS              [ https://lesscss.org            ]
+# styled-components [ https://styled-components.com ]
+# emotion           [ https://emotion.sh            ]
+# styled-jsx        [ https://www.npmjs.com/package/styled-jsx ]
+# None
+styled-components
+# ? Where should the component be generated? … 
 # ❯ As provided: libs/shared/ui/src/lib/ui-footer/ui-footer.tsx
 #   Derived:     libs/shared/ui/src/libs/shared/ui/src/lib/ui-footer/ui-footer/ui-footer.tsx
 As provided
 # CREATE libs/shared/ui/src/lib/ui-footer/ui-footer.spec.tsx
 # CREATE libs/shared/ui/src/lib/ui-footer/ui-footer.tsx
-# UPDATE libs/shared/ui/src/index.ts
 ```
 
-So now libs/shared/ui/src/index.ts contains:
+libs/shared/ui/src/index.ts contains:
+
+`export * from './lib/shared-ui';`
+
+But the new UiFooter plugin will not be directly exported, so add this line:
 
 `export * from './lib/ui-footer/ui-footer';`
 
-And libs/shared/ui/src/lib/ui-footer/ui-footer.tsx contains:
+libs/shared/ui/src/lib/ui-footer/ui-footer.tsx contains:
 
 ```ts
+import styled from 'styled-components';
+
 /* eslint-disable-next-line */
 export interface UiFooterProps {}
 
+const StyledUiFooter = styled.div`
+  color: pink;
+`;
+
 export function UiFooter(props: UiFooterProps) {
   return (
-    <div>
-      <style jsx>{`
-        div {
-          color: pink;
-        }
-      `}</style>
+    <StyledUiFooter>
       <h1>Welcome to UiFooter!</h1>
-    </div>
+    </StyledUiFooter>
   );
 }
 
 export default UiFooter;
 ```
 
-## Import the 'FooterUi' library into both apps
+## Import the 'UiFooter' library into both apps
 
-Add it to apps/viewer/src/app/app.tsx:
+Add it to apps/view/src/app/app.tsx:
 
 ```tsx
 import { UiFooter } from '@tunefields/shared-ui';
@@ -395,7 +405,7 @@ export function App() {
         /** your style here **/
       `}</style>
 
-      <NxWelcome title="viewer" />
+      <NxWelcome title="view" />
       <UiFooter />
     </div>
   );
