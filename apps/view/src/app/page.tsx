@@ -1,6 +1,7 @@
 'use client';
 
 import styled from 'styled-components';
+import { UiFooter } from 'shared-ui';
 
 const StyledPage = styled.div`
   .page {
@@ -471,6 +472,7 @@ export default function Index() {
           </p>
         </div>
       </div>
+      <UiFooter />
     </StyledPage>
   );
 }

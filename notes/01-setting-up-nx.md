@@ -392,75 +392,31 @@ export default UiFooter;
 
 ## Import the 'UiFooter' library into both apps
 
-Add it to apps/view/src/app/app.tsx:
+Add it to apps/make/src/app/page.tsx and apps/view/src/app/page.tsx:
 
 ```tsx
-import { UiFooter } from '@tunefields/shared-ui';
-import NxWelcome from './nx-welcome';
+'use client';
 
-export function App() {
-  return (
-    <div>
-      <style jsx>{`
-        /** your style here **/
-      `}</style>
+import styled from 'styled-components';
+import { UiFooter } from 'shared-ui';
 
-      <NxWelcome title="view" />
+...
+
+      </div>
       <UiFooter />
-    </div>
+    </StyledPage>
   );
 }
-
-export default App;
 ```
 
-And add it to apps/maker/src/app/app.tsx:
-
-```tsx
-import { UiFooter } from '@tunefields/shared-ui';
-import NxWelcome from './nx-welcome';
-
-import { Route, Routes, Link } from 'react-router-dom';
-
-export function App() {
-  return (
-    <div>
-      <style jsx>{`
-        /** your style here **/
-      `}</style>
-
-      <NxWelcome title="maker" />
-
-      {/* START: routes */}
-      ...
-      {/* END: routes */}
-      <UiFooter />
-    </div>
-  );
-}
-
-export default App;
-```
-
-`npx nx serve maker` and `npx nx serve viewer` should both show the new
-UiFooter component "Welcome to UiFooter!" at the bottom of the page.
+`npx nx dev make` and `npx nx dev view` should both show the new UiFooter
+component "Welcome to UiFooter!" in pink at the bottom of the page.
 
 You should see that changing the text of `<h1>Welcome to UiFooter!</h1>` in
 libs/shared/ui/src/lib/ui-footer/ui-footer.tsx immediately changes the app.
 
-You'll also see that the `div { color: pink; }` is leaking into the whole page!
-Here's a quick fix:
-
-```jsx
-    <div className="ui-footer">
-      <style jsx>{`
-        .ui-footer {
-          color: green;
-        }
-      `}</style>
-      <h1>UiFooter Here</h1>
-    </div>
-```
+> Another issue that Tailwind has at this point, is to leak the pink color into
+> the whole page! Using styled-components avoids that issue.
 
 ## Modify the apps for GitHub pages
 
