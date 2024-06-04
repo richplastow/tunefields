@@ -271,8 +271,9 @@ As provided
 
 You should see that apps/make/ and apps/make-e2e/ have been created.
 
-> Possibly the `1 moderate severity vulnerability` is from Tailwind... this is
-> probably not important, for now at least.
+> Tailwind CSS is not listed when you `npx nx g @nx/next:lib` (see below), so
+> for consistency I went with 'styled-components'. Also, Tailwind possibly
+> causes a `1 moderate severity vulnerability`.
 
 And take a look at the 'make' app with `npx nx dev make`, which should show 
 'Welcome make 👋' at <http://localhost:3000/>. `[ctrl-c]` to stop the server.
@@ -281,13 +282,22 @@ And take a look at the 'make' app with `npx nx dev make`, which should show
 
 A library contains a collection of React components.
 
-The viewer app will be a cut-down version of the full Tunefields app, so many
+The 'view' app will be a cut-down version of the full Tunefields app, so many
 components will be shared between them. These should live in a new libs/ folder.
 
 ```bash
-npx nx g @nx/react:library shared-ui --directory=libs/shared/ui --unitTestRunner=vitest --bundler=none
-#  NX  Generating @nx/react:library
-# ? What should be the project name and where should it be generated? …
+npx nx g @nx/next:lib shared-ui --directory=libs/shared/ui
+#  NX  Generating @nx/next:library
+# ? Which stylesheet format would you like to use? … 
+# CSS
+# SASS(.scss)       [ https://sass-lang.com          ]
+# LESS              [ https://lesscss.org            ]
+# styled-components [ https://styled-components.com ]
+# emotion           [ https://emotion.sh            ]
+# styled-jsx        [ https://www.npmjs.com/package/styled-jsx ]
+# None
+styled-components
+# ? What should be the project name and where should it be generated? … 
 # ❯ As provided:
 #     Name: shared-ui
 #     Root: libs/shared/ui
@@ -295,24 +305,26 @@ npx nx g @nx/react:library shared-ui --directory=libs/shared/ui --unitTestRunner
 #     Name: shared-ui-shared-ui
 #     Root: libs/shared/ui/shared-ui
 As provided
+# UPDATE package.json
 # CREATE libs/shared/ui/project.json
 # CREATE libs/shared/ui/.eslintrc.json
 # CREATE libs/shared/ui/README.md
 # CREATE libs/shared/ui/src/index.ts
 # CREATE libs/shared/ui/tsconfig.lib.json
-# CREATE libs/shared/ui/.babelrc
 # CREATE libs/shared/ui/tsconfig.json
-# UPDATE nx.json
-# CREATE libs/shared/ui/vite.config.ts
-# CREATE libs/shared/ui/tsconfig.spec.json
 # CREATE libs/shared/ui/src/lib/shared-ui.spec.tsx
 # CREATE libs/shared/ui/src/lib/shared-ui.tsx
-# UPDATE package.json
+# UPDATE nx.json
 # UPDATE tsconfig.base.json
-# up to date, audited 966 packages in 4s
-# 223 packages are looking for funding
+# CREATE libs/shared/ui/src/server.ts
+# CREATE libs/shared/ui/src/lib/hello-server.tsx
+# added 92 packages, and audited 1400 packages in 14s
+# 272 packages are looking for funding
 #   run `npm fund` for details
-# found 0 vulnerabilities
+# 1 moderate severity vulnerability
+# To address all issues, run:
+#   npm audit fix --force
+# Run `npm audit` for details.
 #  NX   👀 View Details of shared-ui
 # Run "nx show project shared-ui --web" to view details about this project.
 ```

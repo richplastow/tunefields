@@ -1,9 +1,0 @@
-{
-  "name": "make-e2e",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/make-e2e/src",
-  "tags": [],
-  "implicitDependencies": ["make"],
-  "// targets": "to see all targets run: nx show project make-e2e --web",
-  "targets": {}
-}
