@@ -1,0 +1,9 @@
+{
+  "name": "view-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/view-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["view"],
+  "// targets": "to see all targets run: nx show project view-e2e --web",
+  "targets": {}
+}

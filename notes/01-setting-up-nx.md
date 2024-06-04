@@ -42,7 +42,7 @@ Playwright
 # styled-components [ https://styled-components.com            ]
 # emotion           [ https://emotion.sh                       ]
 # styled-jsx        [ https://www.npmjs.com/package/styled-jsx ]
-tailwind
+styled-components
 # ? Do you want Nx Cloud to make your CI fast? …  
 # (it's free and can be disabled any time)
 # Yes, enable Nx Cloud
@@ -64,7 +64,7 @@ Skip for now
 ```
 
 You should see a new 'tunefields' subdirectory, with a bunch of files. According
-to my Mac, 477,621,297 bytes (607.3 MB on disk) for 45,578 items. Nearly double
+to my Mac, 472,019,905 bytes (599.6 MB on disk) for 44,815 items. Nearly double
 the 333.5 MB for 28,995 items that `--preset=react-monorepo` installs.
 
 ## Move the generated Nx monorepo files to the top level
@@ -146,7 +146,7 @@ npx nx dev view
 
 Visit <http://localhost:3000/> which should show 'Welcome view 👋'.
 
-In your browser's 'Network' developer tab, you should see seven `200` requests,
+In your browser's 'Network' developer tab, you should see eight `200` requests,
 plus a `101` for Webpack's hot module reloading. Later, the build will show just
 ???? requests.
 
@@ -207,7 +207,7 @@ npx nx list @nx/next
 # module-federation-ssr-dev-server : Serve a host application along with it's known remotes.
 ```
 
-## Add the 'mak' application
+## Add the 'make' application
 
 This will be the main creative app.
 
@@ -231,7 +231,6 @@ true
 #     Name: make-make
 #     Root: apps/make/make
 As provided
-# UPDATE .gitignore
 # CREATE apps/make/index.d.ts
 # CREATE apps/make/next-env.d.ts
 # CREATE apps/make/next.config.js
@@ -241,9 +240,9 @@ As provided
 # CREATE apps/make/tsconfig.json
 # CREATE apps/make/src/app/api/hello/route.ts
 # CREATE apps/make/src/app/global.css
-# CREATE apps/make/src/app/page.module.css
 # CREATE apps/make/src/app/page.tsx
 # CREATE apps/make/src/app/layout.tsx
+# CREATE apps/make/src/app/registry.tsx
 # CREATE apps/make/project.json
 # CREATE apps/make-e2e/project.json
 # CREATE apps/make-e2e/src/example.spec.ts
@@ -253,16 +252,11 @@ As provided
 # CREATE apps/make/jest.config.ts
 # CREATE apps/make/tsconfig.spec.json
 # CREATE apps/make/.eslintrc.json
-# CREATE apps/make/postcss.config.js
-# CREATE apps/make/tailwind.config.js
 # UPDATE package.json
-# added 8 packages, and audited 1308 packages in 6s
-# 246 packages are looking for funding
+# added 8 packages, and audited 1297 packages in 7s
+# 241 packages are looking for funding
 #   run `npm fund` for details
-# 1 moderate severity vulnerability
-# To address all issues, run:
-#   npm audit fix --force
-# Run `npm audit` for details.
+# found 0 vulnerabilities
 #  NX   Ensuring Playwright is installed.
 # use --skipInstall to skip installation.
 #  NX   👀 View Details of make
@@ -271,11 +265,11 @@ As provided
 
 You should see that apps/make/ and apps/make-e2e/ have been created.
 
-> Tailwind CSS is not listed when you `npx nx g @nx/next:lib` (see below), so
-> for consistency I went with 'styled-components'. Also, Tailwind possibly
-> causes a `1 moderate severity vulnerability`.
+> Tailwind CSS is not listed when you `npx nx g @nx/next:lib` (see below),
+> so for consistency I went with 'styled-components'. Also, Tailwind causes
+> a `1 moderate severity vulnerability` NPM warning.
 
-And take a look at the 'make' app with `npx nx dev make`, which should show 
+Take a look at the 'make' app with `npx nx dev make`, which should show 
 'Welcome make 👋' at <http://localhost:3000/>. `[ctrl-c]` to stop the server.
 
 ## Create a local library
@@ -318,30 +312,28 @@ As provided
 # UPDATE tsconfig.base.json
 # CREATE libs/shared/ui/src/server.ts
 # CREATE libs/shared/ui/src/lib/hello-server.tsx
-# added 92 packages, and audited 1400 packages in 14s
-# 272 packages are looking for funding
+# added 73 packages, and audited 1370 packages in 9s
+# 265 packages are looking for funding
 #   run `npm fund` for details
-# 1 moderate severity vulnerability
-# To address all issues, run:
-#   npm audit fix --force
-# Run `npm audit` for details.
+# found 0 vulnerabilities
 #  NX   👀 View Details of shared-ui
 # Run "nx show project shared-ui --web" to view details about this project.
 ```
 
 You should see libs/shared/ui/ (but no libs/shared/ui-e2e/) has been created.
 
-You should also see in tsconfig.base.json that the footer has been added:
+You should also see in tsconfig.base.json that 'shared-ui' has been added:
 
 ```json
 {
   "compilerOptions": {
     ...
     "paths": {
-      "@tunefields/shared-ui": ["libs/shared/ui/src/index.ts"]
-    },
-    ...
+      "shared-ui": ["libs/shared/ui/src/index.ts"],
+      "shared-ui/server": ["libs/shared/ui/src/server.ts"]
+    }
   },
+  ...
 }
 ```
 
