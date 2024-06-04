@@ -2,8 +2,8 @@
 
 # compiled output
 /out-tsc
-/dist
-/tmp
+dist
+tmp
 
 # dependencies
 node_modules
@@ -25,7 +25,7 @@ node_modules
 .vscode/*
 
 # misc
-/.nx/cache
+.nx/cache
 /.sass-cache
 /connect.lock
 /coverage
@@ -38,3 +38,7 @@ yarn-error.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Next.js
+.next
+out
