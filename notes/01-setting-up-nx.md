@@ -212,87 +212,70 @@ npx nx list @nx/next
 This will be the main creative app.
 
 ```bash
-npx nx g @nx/next make --directory=apps/make # can also add --dry-run
+npx nx g @nx/next:app make --directory=apps/make # can also add --dry-run
 #  NX  Generating @nx/react:application
-# ? Would you like to add React Router to this application? (y/N) › true
-y
 # ? Which E2E test runner would you like to use? …
 # playwright
 # cypress
 # none
-cypress
+playwright
+# ? Would you like to add React Router to this application? (y/N) › true
+true
+# ? Would you like to use `src/` directory? (Y/n) › true
+true
 # ? What should be the project name and where should it be generated? …
 # ❯ As provided:
-#     Name: maker
-#     Root: apps/maker
+#     Name: make
+#     Root: apps/make
 #   Derived:
-#     Name: maker-maker
-#     Root: apps/maker/maker
+#     Name: make-make
+#     Root: apps/make/make
 As provided
-# CREATE apps/maker/index.html
-# CREATE apps/maker/public/favicon.ico
-# CREATE apps/maker/src/app/app.spec.tsx
-# CREATE apps/maker/src/assets/.gitkeep
-# CREATE apps/maker/src/main.tsx
-# CREATE apps/maker/tsconfig.app.json
-# CREATE apps/maker/src/app/nx-welcome.tsx
-# CREATE apps/maker/src/app/app.tsx
-# CREATE apps/maker/tsconfig.json
-# CREATE apps/maker/project.json
-# CREATE apps/maker/tsconfig.spec.json
-# CREATE apps/maker/vite.config.ts
-# CREATE apps/maker/.eslintrc.json
-# CREATE apps/maker-e2e/project.json
-# CREATE apps/maker-e2e/src/e2e/app.cy.ts
-# CREATE apps/maker-e2e/src/support/app.po.ts
-# CREATE apps/maker-e2e/src/support/e2e.ts
-# CREATE apps/maker-e2e/src/fixtures/example.json
-# CREATE apps/maker-e2e/src/support/commands.ts
-# CREATE apps/maker-e2e/cypress.config.ts
-# CREATE apps/maker-e2e/tsconfig.json
-# CREATE apps/maker-e2e/.eslintrc.json
+# UPDATE .gitignore
+# CREATE apps/make/index.d.ts
+# CREATE apps/make/next-env.d.ts
+# CREATE apps/make/next.config.js
+# CREATE apps/make/public/.gitkeep
+# CREATE apps/make/public/favicon.ico
+# CREATE apps/make/specs/index.spec.tsx
+# CREATE apps/make/tsconfig.json
+# CREATE apps/make/src/app/api/hello/route.ts
+# CREATE apps/make/src/app/global.css
+# CREATE apps/make/src/app/page.module.css
+# CREATE apps/make/src/app/page.tsx
+# CREATE apps/make/src/app/layout.tsx
+# CREATE apps/make/project.json
+# CREATE apps/make-e2e/project.json
+# CREATE apps/make-e2e/src/example.spec.ts
+# CREATE apps/make-e2e/playwright.config.ts
+# CREATE apps/make-e2e/tsconfig.json
+# CREATE apps/make-e2e/.eslintrc.json
+# CREATE apps/make/jest.config.ts
+# CREATE apps/make/tsconfig.spec.json
+# CREATE apps/make/.eslintrc.json
+# CREATE apps/make/postcss.config.js
+# CREATE apps/make/tailwind.config.js
 # UPDATE package.json
-# added 3 packages, and audited 966 packages in 4s
-# 223 packages are looking for funding
+# added 8 packages, and audited 1308 packages in 6s
+# 246 packages are looking for funding
 #   run `npm fund` for details
-# found 0 vulnerabilities
-#  NX   👀 View Details of maker
-# Run "nx show project maker --web" to view details about this project.
+# 1 moderate severity vulnerability
+# To address all issues, run:
+#   npm audit fix --force
+# Run `npm audit` for details.
+#  NX   Ensuring Playwright is installed.
+# use --skipInstall to skip installation.
+#  NX   👀 View Details of make
+# Run "nx show project make --web" to view details about this project.
 ```
 
-You should see that apps/maker/ and apps/maker-e2e/ have been created.
+You should see that apps/make/ and apps/make-e2e/ have been created.
 
-> When using Tailwind instead of styled-jsx, the above NPM report includes:
->
-> `1 moderate severity vulnerability`
+> Possibly the `1 moderate severity vulnerability` is from Tailwind... this is
+> probably not important, for now at least.
 
-As before, change the output directory for the production build:
-
-```ts
-// apps/maker/vite.config.ts
-export default defineConfig({
-  // ...
-  build: {
-    outDir: '../../docs/make',
-    // ...
-  },
-});
-```
-
-And take a look at the maker app:
-
-```bash
-npx nx serve maker
-# > nx run maker:serve
-# > vite serve
-#   VITE v5.0.13  ready in 501 ms
-#     ➜  Local:   http://localhost:4200/
-#   ➜  press h + enter to show help
-```
-
-Visit <http://localhost:4200/> which should show 'Welcome maker 👋'.
-
-`[ctrl-c]` to stop the server.
+And take a look at the 'make' app with `npx nx dev make`, which should show 
+'Welcome make 👋' at <http://localhost:3000/>. `[ctrl-c]` to stop the server.
 
 ## Create a local library
 
