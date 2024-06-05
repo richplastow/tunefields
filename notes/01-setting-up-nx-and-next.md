@@ -638,7 +638,7 @@ Add these 3 scripts to package.json:
 ...
   "scripts": {
     "build": "rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs",
-    "clean": "rm -rf .nx && rm -rf apps/make/.next && rm -rf apps/view/.next && npx nx reset",
+    "clean": "rm -rf .nx && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
     "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
   },
 ...
@@ -712,44 +712,79 @@ apps and libraries.
 
 ## Lint, and run unit tests
 
+Update apps/make/.eslintrc.json and apps/view/.eslintrc.json to ignore the out/
+folder:
+
+```json
+...
+  "ignorePatterns": ["!**/*", ".next/**/*", "out/**/*"],
+...
+```
+
+Currently, the generated components in libs/ are being found for linting, but
+not being found for unit testing. Add a libs/shared/ui/jest.config.ts file,
+which is just a copy of apps/make/jest.config.ts with updated paths:
+
+```ts
+/* eslint-disable */
+export default {
+  displayName: 'make',
+  preset: '../../../jest.preset.js',
+  transform: {
+    '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
+    '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/next/babel'] }],
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  coverageDirectory: '../../../coverage/apps/make',
+};
+```
+
 Lint the apps and library in parallel.
 
 ```bash
 npx nx run-many -t lint
 #    ✔  nx run shared-ui:lint (7s)
-#    ✔  nx run viewer:lint (7s)
-#    ✔  nx run maker:lint (7s)
-#    ✔  nx run maker-e2e:lint (3s)
-#    ✔  nx run viewer-e2e:lint (3s)
+#    ✔  nx run make-e2e:lint (9s)
+#    ✔  nx run make:lint (16s)
+#    ✔  nx run view:lint (17s)
+#    ✔  nx run view-e2e:lint (10s)
 # ——————————————————————————————————————————————————————————————————————————————
 #  NX   Successfully ran target test for 5 projects (9s)
 ```
 
 Run unit tests on the apps and library in parallel.
 
-> Note that running the unit tests again immediately afterwards will be faster,
-> because Nx uses its cache.
+> Note that running linting or the unit tests again immediately afterwards will
+> be faster, because Nx uses its cache.
 
 ```bash
 npx nx run-many -t test
-#    ✔  nx run shared-ui:test (7s)
-#    ✔  nx run viewer:test (7s)
-#    ✔  nx run maker:test (7s)
+#    ✔  nx run shared-ui:test (6s)
+#    ✔  nx run view:test (7s)
+#    ✔  nx run make:test (7s)
 # ——————————————————————————————————————————————————————————————————————————————
 #  NX   Successfully ran target test for 3 projects (7s)
 ```
 
 Run end-to-end tests on both apps. These need to be done one at a time.
 
+> If your /Users/richplastow/Library/Caches/ms-playwright/ folder is missing or
+> does not have the correct binaries, for any reason, run the Playwright update
+> command `npx playwright install --with-deps`
+
 ```bash
-npx nx e2e maker-e2e
-# > nx run maker-e2e:e2e
+npx nx e2e make-e2e
+# > nx run make-e2e:e2e
+# > playwright test
+
+
+# > nx run make-e2e:e2e
 # > cypress run
 # It looks like this is your first time using Cypress: 13.9.0
 ✔  Verified Cypress! /Users/<USERNAME>/Library/Caches/Cypress/13.9.0/Cypress.app
 Opening Cypress...
 DevTools listening on ws://127.0.0.1:53647/devtools/browser/62ce1cd2-3882-4a8a-933a-e06d5f0bc358
-> nx run maker:serve
+> nx run make:serve
 > vite serve
 The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
   VITE v5.0.13  ready in 844 ms

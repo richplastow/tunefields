@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs",
-    "clean": "rm -rf .nx && rm -rf apps/make/.next && rm -rf apps/view/.next && npx nx reset",
+    "clean": "rm -rf .nx && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
     "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
   },
   "dependencies": {
@@ -25,10 +25,10 @@
     "@nx/jest": "19.1.2",
     "@nx/js": "19.1.2",
     "@nx/next": "19.1.2",
-    "@nx/playwright": "19.1.2",
+    "@nx/playwright": "^19.1.2",
     "@nx/react": "19.1.2",
     "@nx/workspace": "19.1.2",
-    "@playwright/test": "^1.36.0",
+    "@playwright/test": "^1.44.1",
     "@swc-node/register": "~1.9.1",
     "@swc/cli": "~0.3.12",
     "@swc/core": "~1.5.7",
