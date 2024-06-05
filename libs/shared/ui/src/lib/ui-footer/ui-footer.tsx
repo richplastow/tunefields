@@ -10,7 +10,7 @@ const StyledUiFooter = styled.div`
 export function UiFooter(props: UiFooterProps) {
   return (
     <StyledUiFooter>
-      <h1>Welcome to UiFooter!</h1>
+      <footer>Welcome to UiFooter!</footer>
     </StyledUiFooter>
   );
 }

@@ -382,7 +382,7 @@ const StyledUiFooter = styled.div`
 export function UiFooter(props: UiFooterProps) {
   return (
     <StyledUiFooter>
-      <h1>Welcome to UiFooter!</h1>
+      <footer>Welcome to UiFooter!</footer>
     </StyledUiFooter>
   );
 }
@@ -414,8 +414,8 @@ import { UiFooter } from 'shared-ui';
 `npx nx dev make` and `npx nx dev view` should both show the new UiFooter
 component "Welcome to UiFooter!" in pink at the bottom of the page.
 
-You should see that changing the text of `<h1>Welcome to UiFooter!</h1>` in
-libs/shared/ui/src/lib/ui-footer/ui-footer.tsx immediately changes the app.
+You should see that changing the text of `<footer>Welcome to UiFooter!</footer>`
+in libs/shared/ui/src/lib/ui-footer/ui-footer.tsx immediately changes the app.
 
 > Another issue that Tailwind has at this point, is to leak the pink color into
 > the whole page! Using styled-components avoids that issue.
@@ -638,7 +638,7 @@ Add these 3 scripts to package.json:
 ...
   "scripts": {
     "build": "rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs",
-    "clean": "rm -rf .nx && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
+    "clean": "rm -rf .nx && rm -rf dist && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
     "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
   },
 ...
@@ -766,7 +766,8 @@ npx nx run-many -t test
 #  NX   Successfully ran target test for 3 projects (7s)
 ```
 
-Run end-to-end tests on both apps. These need to be done one at a time.
+Run end-to-end tests on both apps. These need to be done one at a time. If you
+encounter a Playwright error, `npm run clean` may help.
 
 > If your /Users/richplastow/Library/Caches/ms-playwright/ folder is missing or
 > does not have the correct binaries, for any reason, run the Playwright update
@@ -776,54 +777,12 @@ Run end-to-end tests on both apps. These need to be done one at a time.
 npx nx e2e make-e2e
 # > nx run make-e2e:e2e
 # > playwright test
-
-
-# > nx run make-e2e:e2e
-# > cypress run
-# It looks like this is your first time using Cypress: 13.9.0
-✔  Verified Cypress! /Users/<USERNAME>/Library/Caches/Cypress/13.9.0/Cypress.app
-Opening Cypress...
-DevTools listening on ws://127.0.0.1:53647/devtools/browser/62ce1cd2-3882-4a8a-933a-e06d5f0bc358
-> nx run make:serve
-> vite serve
-The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
-  VITE v5.0.13  ready in 844 ms
-  ➜  Local:   http://localhost:4200/
-====================================================================================================
-  (Run Starting)
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ Cypress:        13.9.0                                                                         │
-  │ Browser:        Electron 118 (headless)                                                        │
-  │ Node Version:   v20.9.0 (/Users/<USERNAME>/.nvm/versions/node/v20.9.0/bin/node)                │
-  │ Specs:          1 found (app.cy.ts)                                                            │
-  │ Searched:       src/**/*.cy.{js,jsx,ts,tsx}                                                    │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-────────────────────────────────────────────────────────────────────────────────────────────────────
-  Running:  app.cy.ts                                                                       (1 of 1)
-  maker-e2e
-    ✓ should display welcome message (1375ms)
-  1 passing (2s)
-  (Results)
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ Tests:        1                                                                                │
-  │ Passing:      1                                                                                │
-  │ Failing:      0                                                                                │
-  │ Pending:      0                                                                                │
-  │ Skipped:      0                                                                                │
-  │ Screenshots:  0                                                                                │
-  │ Video:        false                                                                            │
-  │ Duration:     1 second                                                                         │
-  │ Spec Ran:     app.cy.ts                                                                        │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-====================================================================================================
-  (Run Finished)
-       Spec                                              Tests  Passing  Failing  Pending  Skipped  
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ ✔  app.cy.ts                                00:01        1        1        -        -        - │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-    ✔  All specs passed!                        00:01        1        1        -        -        -  
-————————————————————————————————————————————————————————————————————————————————————————————————————
- NX   Successfully ran target e2e for project maker-e2e (45s)
+# Running 3 tests using 2 workers
+#   3 passed (53.7s)
+# To open last HTML report run:
+#   npx playwright show-report ../../dist/.playwright/apps/make-e2e/playwright-report
+# ——————————————————————————————————————————————————————————————————————————————
+#  NX   Successfully ran target e2e for project make-e2e (55s)
 ```
 
 ```bash
