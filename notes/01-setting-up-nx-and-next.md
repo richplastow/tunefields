@@ -688,8 +688,15 @@ file is being served, <http://localhost:9080/no-such-route>.
 
 ## Fix the page title and missing favicon.ico
 
-Next's 'Head' docs <https://nextjs.org/docs/pages/api-reference/components/head>
-have an example we can extend. 
+In apps/make/src/app/layout.tsx and apps/view/src/app/layout.tsx change the
+default `title` to `'Tunefields | make'` and `'Tunefields | view'`.
+
+Change the `description` to `'Create some music!'` and `'Explore some music!'`.
+
+And add `icons: { icon: './favicon.ico' },` to both `metadata` objects.
+
+`npx nx dev ...` and `npm run build && npm start` should show that the metadata
+is working for both apps.
 
 ## View the project graph
 
