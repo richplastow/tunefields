@@ -539,44 +539,21 @@ git status
 #     new file:   docs/view/index.html
 #     new file:   docs/view/index.txt
 git commit -am 'After initial static build of default Nx + Next apps, ‘make’ and ‘view’'
+# [main 2a6693e] After initial static build of default Nx + Next apps, ‘make’ and ‘view’
+#  57 files changed, 688 insertions(+), 8 deletions(-)
+#  create mode 100644 docs/.nx-helpers/compiled.js
+# ...
+#  create mode 100644 docs/view/index.txt
+git push
+# Enumerating objects: 112, done.
+# Counting objects: 100% (112/112), done.
+# ...
+#    4e35129..2a6693e  main -> main
 ```
 
-Remove `<base href="/" />` from the index.html of both apps. For example,
-apps/maker/index.html should become:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>maker</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-```
-
-Add `base: './',` to the vite.config.ts of both apps. For example,
-apps/maker/vite.config.ts should become:
-
-```ts
-/// <reference types='vitest' />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-
-export default defineConfig({
-  base: './',
-  root: __dirname,
-  cacheDir: '../../node_modules/.vite/apps/viewer',
-  // ...
-});
-```
+- Visit <https://github.com/GH_USER/tunefields/settings/pages>
+- Build and deployment: set 'Branch' to 'main', select '/docs', click 'Save'
+- Tick the 'Enforce HTTPS' checkbox
 
 ## View the project graph
 
