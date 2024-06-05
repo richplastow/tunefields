@@ -5,7 +5,11 @@
   "author": "Rich Plastow",
   "private": false,
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "build": "rm -rf docs && npx nx run-many -t build && node scripts/post-build.mjs",
+    "clean": "rm -rf .nx && rm -rf apps/make/.next && rm -rf apps/view/.next && npx nx reset",
+    "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
+  },
   "dependencies": {
     "next": "14.2.3",
     "react": "18.3.1",

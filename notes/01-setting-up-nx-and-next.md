@@ -506,19 +506,22 @@ Mac says the docs/ folder is 1,547,114 bytes (1.7 MB on disk) for 69 items. The
 folder.
 
 ```bash
+static-server --version # you may need to `npm i -g static-server`
+# static-server@2.2.1
 mv docs tunefields && static-server .
 # * Static server successfully started.
 # * Serving files at: http://localhost:9080
 # * Press Ctrl+C to shutdown.
 ```
 
-Visit the two statically served app at <http://localhost:9080/tunefields/make/>
+Visit the two statically served apps at <http://localhost:9080/tunefields/make/>
 and <http://localhost:9080/tunefields/view/>.
 
 `[ctrl-c]` to stop `static-server .`.
 
 ```bash
 mv tunefields docs
+touch docs/.nojekyll # stop GitHub Pages from ignoring underscore-prefixed folders
 git add .
 git status
 # On branch main
@@ -554,6 +557,114 @@ git push
 - Visit <https://github.com/GH_USER/tunefields/settings/pages>
 - Build and deployment: set 'Branch' to 'main', select '/docs', click 'Save'
 - Tick the 'Enforce HTTPS' checkbox
+- Visit <https://richplastow.github.io/tunefields/make/>
+- Visit <https://richplastow.github.io/tunefields/view/>
+
+You should see "Welcome make 👋" and "Welcome view 👋".
+
+## Create package.json scripts for building and running the apps locally
+
+I found that running `npx nx run-many -t build` sometimes crashed if the docs/
+folder already existed. Also, we may find later that old build-files hang around
+in docs/ long after they are needed. A better approach is to have a `"build"`
+script in the package.json `"scripts"` object, that deletes the docs/ folder if
+it exists, and then tells Nx to build from scratch.
+
+After Next's production build, docs/ contains a lot of files we don't need for
+hosting on GitHub Pages, and so should be deleted after the build:
+
+```
+.nx-helpers/     -> contains 3 files for Nx, none are needed
+make/.gitkeep    -> not needed, and could probably remove some more from make/
+next.config.js   -> not needed
+package.json     -> not needed
+public/          -> contains 2 files, neither is needed
+view/.gitkeep    -> not needed, and could probably remove some more from view/
+```
+
+Given that we also need to add docs/.nojekyll and docs/404.html files, the new
+`"build"` script would be too complicated to be a one-liner in the package.json
+`"scripts"` object. Create a folder named scripts/ in the top-level, and then
+scripts/post-build.mjs:
+
+```js
+import { rmSync, writeFileSync } from 'node:fs';
+
+// Delete files and folders that are not needed for hosting on GitHub Pages.
+const rf = { recursive: true }; // equivalent to '-rf' in 'rm -rf'
+rmSync('docs/.nx-helpers', rf); // contains 3 files for Nx, none are needed
+rmSync('docs/make/.gitkeep'); // TODO probably remove some more
+rmSync('docs/next.config.js'); // not needed
+rmSync('docs/package.json'); // not needed
+rmSync('docs/public', rf); // contains 2 files, neither is needed
+rmSync('docs/view/.gitkeep'); // TODO probably remove some more
+
+// Create top-level files needed for hosting on GitHub Pages. The .nojekyll file
+// (which is empty) stops GitHub Pages from ignoring underscore-prefixed folders.
+// The 404.html file will be used for incorrect routes, but also for redirecting
+// deep-links to dynamic routes.
+writeFileSync('docs/.nojekyll', '');
+writeFileSync('docs/404.html', [
+    '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">',
+    '<title>Not Found TODO</title>',
+    '</head><body><h1>Not Found TODO</h1></body></html>',
+    ].join('\n')
+);
+```
+
+Add these 3 scripts to package.json:
+
+```json
+...
+  "scripts": {
+    "build": "rm -rf docs && npx nx run-many -t build && node scripts/post-build.mjs",
+    "clean": "rm -rf .nx && rm -rf apps/make/.next && rm -rf apps/view/.next && npx nx reset",
+    "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
+  },
+...
+```
+
+Use the new `"build"` script to build both apps in parallel, and prepare the
+resulting docs/ folder for hosting on GitHub Pages:
+
+```bash
+npm run build
+# > tunefields@0.0.1 build
+# > rm -rf docs && npx nx run-many -t build && node scripts/post-build.mjs
+#    ✔  nx run make:build:production (38s)
+#    ✔  nx run view:build:production (40s)
+# ——————————————————————————————————————————————————————————————————————————————
+#  NX   Successfully ran target build for 2 projects (40s)
+```
+
+If you encounter an Nx error, `npm run clean` may help.
+
+The docs/ folder should now contain:
+
+```
+make/            -> no longer contains .gitkeep
+view/            -> no longer contains .gitkeep
+.nojekyll        -> stops GitHub Pages from ignoring underscore-prefixed folders
+404.html         -> for incorrect routes, and redirecting dynamic deep-links
+```
+
+```bash
+npm start # 'start' is a standard NPM script name, so no need for `npm run start`
+# > tunefields@0.0.1 start
+# > mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs
+# * Static server successfully started.
+# * Serving files at: http://localhost:9080
+# * Press Ctrl+C to shutdown.
+```
+
+While `static-server` is running, you should see that the docs/ folder has been
+renamed to tunefields/ - and after you `[ctrl-c]` its name should revert back.
+
+Visit the two statically served apps at <http://localhost:9080/tunefields/make/>
+and <http://localhost:9080/tunefields/view/>, and also check that the 404.html
+file is being served, <http://localhost:9080/no-such-route>.
+
+`[ctrl-c]` to stop `static-server .`.
 
 ## View the project graph
 
