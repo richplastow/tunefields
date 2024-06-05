@@ -612,12 +612,12 @@ import { rmSync, writeFileSync } from 'node:fs';
 
 // Delete files and folders that are not needed for hosting on GitHub Pages.
 const rf = { recursive: true }; // equivalent to '-rf' in 'rm -rf'
-rmSync('docs/.nx-helpers', rf); // contains 3 files for Nx, none are needed
-rmSync('docs/make/.gitkeep'); // TODO probably remove some more
-rmSync('docs/next.config.js'); // not needed
-rmSync('docs/package.json'); // not needed
-rmSync('docs/public', rf); // contains 2 files, neither is needed
-rmSync('docs/view/.gitkeep'); // TODO probably remove some more
+try { rmSync('docs/.nx-helpers', rf) } catch(e) {} // contains 3 files for Nx, none are needed
+try { rmSync('docs/make/.gitkeep') } catch(e) {} // TODO probably remove some more
+try { rmSync('docs/next.config.js') } catch(e) {} // not needed
+try { rmSync('docs/package.json') } catch(e) {} // not needed
+try { rmSync('docs/public', rf) } catch(e) {} // contains 2 files, neither is needed
+try { rmSync('docs/view/.gitkeep') } catch(e) {} // TODO probably remove some more
 
 // Create top-level files needed for hosting on GitHub Pages. The .nojekyll file
 // (which is empty) stops GitHub Pages from ignoring underscore-prefixed folders.
@@ -786,141 +786,84 @@ npx nx e2e make-e2e
 ```
 
 ```bash
-npx nx e2e viewer-e2e
-> nx run viewer-e2e:e2e
-> cypress run
-DevTools listening on ws://127.0.0.1:54181/devtools/browser/4d1e8656-db64-468e-81e2-ec7f56263e2d
-> nx run viewer:serve
-> vite serve
-The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
-  VITE v5.0.13  ready in 460 ms
-  ➜  Local:   http://localhost:4200/
-====================================================================================================
-  (Run Starting)
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ Cypress:        13.9.0                                                                         │
-  │ Browser:        Electron 118 (headless)                                                        │
-  │ Node Version:   v20.9.0 (/Users/<USERNAME>/.nvm/versions/node/v20.9.0/bin/node)                │
-  │ Specs:          1 found (app.cy.ts)                                                            │
-  │ Searched:       src/**/*.cy.{js,jsx,ts,tsx}                                                    │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-────────────────────────────────────────────────────────────────────────────────────────────────────
-                                                                                                    
-  Running:  app.cy.ts                                                                       (1 of 1)
-  viewer-e2e
-    ✓ should display welcome message (1031ms)
-  1 passing (1s)
-  (Results)
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ Tests:        1                                                                                │
-  │ Passing:      1                                                                                │
-  │ Failing:      0                                                                                │
-  │ Pending:      0                                                                                │
-  │ Skipped:      0                                                                                │
-  │ Screenshots:  0                                                                                │
-  │ Video:        false                                                                            │
-  │ Duration:     1 second                                                                         │
-  │ Spec Ran:     app.cy.ts                                                                        │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-====================================================================================================
-  (Run Finished)
-       Spec                                              Tests  Passing  Failing  Pending  Skipped  
-  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ ✔  app.cy.ts                                00:01        1        1        -        -        - │
-  └────────────────────────────────────────────────────────────────────────────────────────────────┘
-    ✔  All specs passed!                        00:01        1        1        -        -        -  
-————————————————————————————————————————————————————————————————————————————————————————————————————
- NX   Successfully ran target e2e for project viewer-e2e (11s)
+npx nx e2e view-e2e
+# > nx run view-e2e:e2e
+# > playwright test
+# Running 3 tests using 2 workers
+#   3 passed (44.8s)
+# To open last HTML report run:
+#   npx playwright show-report ../../dist/.playwright/apps/view-e2e/playwright-report
+# ——————————————————————————————————————————————————————————————————————————————
+#  NX   Successfully ran target e2e for project view-e2e (47s)
 ```
 
-## Build the apps for deployment
+After running end-to-end tests, the doc/ folder is filled with files we don't
+need again. Run `node scripts/post-build.mjs` to remove them.
 
-This will build both apps in parallel.
+Add two scripts to `"scripts"`, in the top-level package.json file:
+
+```json
+...
+    "e2e:make": "npx nx e2e make-e2e && node scripts/post-build.mjs",
+    "e2e:view": "npx nx e2e view-e2e && node scripts/post-build.mjs",
+...
+```
+
+To see this working, change the word "Welcome" to "Something Else" in the
+apps/view/src/app/page.tsx file.
 
 ```bash
-npx nx run-many -t build
-#    ✔  nx run viewer:build (5s)
-#    ✔  nx run maker:build (5s)
-# ——————————————————————————————————————————————————————————————————————————————
-#  NX   Successfully ran target build for 2 projects
+npm run e2e:view
+# > tunefields@0.0.1 e2e:view
+# > npx nx e2e view-e2e && node scripts/post-build.mjs
+# > nx run view-e2e:e2e
+# > playwright test
+# Running 3 tests using 2 workers
+#   1) [chromium] › example.spec.ts:3:5 › has title ────────────────────────────
+#     Error: expect(received).toContain(expected) // indexOf
+#     Expected substring: "Welcome"
+#     Received string:    "Hello there, Something Else view 👋"
+#       5 |
+#       6 |   // Expect h1 to contain a substring.
+#     > 7 |   expect(await page.locator('h1').innerText()).toContain('Welcome');
+#         |                                                ^
+#       8 | });
+#       9 |
+#         at .../tunefields/apps/view-e2e/src/example.spec.ts:7:48
+#   2) [webkit] › example.spec.ts:3:5 › has title ──────────────────────────────
+#     Error: expect(received).toContain(expected) // indexOf
+#     Expected substring: "Welcome"
+#     Received string:    "Hello there, Something Else view 👋"
+#       5 |
+#       6 |   // Expect h1 to contain a substring.
+#     > 7 |   expect(await page.locator('h1').innerText()).toContain('Welcome');
+#         |                                                ^
+#       8 | });
+#       9 |
+#         at .../tunefields/apps/view-e2e/src/example.spec.ts:7:48
+#   3) [firefox] › example.spec.ts:3:5 › has title ─────────────────────────────
+#     Error: expect(received).toContain(expected) // indexOf
+#     Expected substring: "Welcome"
+#     Received string:    "Hello there, Something Else view 👋"
+#       5 |
+#       6 |   // Expect h1 to contain a substring.
+#     > 7 |   expect(await page.locator('h1').innerText()).toContain('Welcome');
+#         |                                                ^
+#       8 | });
+#       9 |
+#         at .../tunefields/apps/view-e2e/src/example.spec.ts:7:48
+#   3 failed
+#     [chromium] › example.spec.ts:3:5 › has title ─────────────────────────────
+#     [firefox] › example.spec.ts:3:5 › has title ──────────────────────────────
+#     [webkit] › example.spec.ts:3:5 › has title ───────────────────────────────
+#   Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.
 ```
 
-You should see the new docs/make/ and docs/view/ folders. And docs/index.html
-has not been deleted or changed (it can become a menu or auto-redirect page).
+If an e2e test times out, you may need to run `rm -rf docs`.
 
-You can check one of the builds using `npx nx serve-static`, although this is
-not an accurate simulation of how GitHub Pages will serve the apps. Also, in the
-[next step](./03-not-found-and-deep-links.md), the 'maker' app will need to be
-served at '/make/', which will break `npx nx serve-static maker`.
+Other kinds of failed e2e tests may need `npm run clean && rm -rf docs`.
 
-```bash
-npx nx serve-static maker
-# > nx run maker:serve-static
-# > nx run maker:build  [existing outputs match the cache, left as is]
-# > vite build
-# The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
-# vite v5.0.13 building for production...
-# transforming...
-# ✓ 37 modules transformed.
-# rendering chunks...
-# computing gzip size...
-# ../../docs/make/index.html                  0.40 kB │ gzip:  0.27 kB
-# ../../docs/make/assets/index-DbSB_BSY.js  187.60 kB │ gzip: 58.88 kB
-# ✓ built in 3.07s
-# ——————————————————————————————————————————————————————————————————————————————
-#  NX   Successfully ran target build for project maker (172ms)
-# Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
-# Starting up http-server, serving docs/make
-# http-server version: 14.1.1
-# http-server settings: 
-# CORS: true
-# Cache: -1 seconds
-# Connection Timeout: 120 seconds
-# Directory Listings: visible
-# AutoIndex: visible
-# Serve GZIP Files: false
-# Serve Brotli Files: false
-# Default File Extension: none
-# Available on:
-#   http://localhost:4200
-# Unhandled requests will be served from: http://localhost:4200?. Options: {"secure":false,"prependPath":true}
-# Hit CTRL-C to stop the server
-# > nx run maker:build  [local cache]
-# > vite build
-# The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
-# vite v5.0.13 building for production...
-# transforming...
-# ✓ 37 modules transformed.
-# rendering chunks...
-# computing gzip size...
-# ../../docs/make/index.html                  0.40 kB │ gzip:  0.27 kB
-# ../../docs/make/assets/index-DbSB_BSY.js  187.60 kB │ gzip: 58.88 kB
-# ✓ built in 3.07s
-# ——————————————————————————————————————————————————————————————————————————————
-# ...
-# ——————————————————————————————————————————————————————————————————————————————
-#  NX   Successfully ran target build for project maker (139ms)
-# Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
-```
-
-Visit <http://localhost:4200/> which should show 'Welcome maker 👋'.
-
-You can change "👋" to "!" in docs/make/assets/index-SOME_ID.js and refresh, to
-reassure yourself that the browser is reading files from the docs/ folder.
-
-Assuming you have the NPM package `static-server` installed globally:
-
-```bash
-static-server docs/
-# * Static server successfully started.
-# * Serving files at: http://localhost:9080
-# * Press Ctrl+C to shutdown.
-```
-
-Visiting <http://localhost:9080/view/> should work as long as the
-[Modify the apps for GitHub pages](#modify-the-apps-for-github-pages) change has
-been done. Note that <http://localhost:9080/view> (without a trailing slash)
-will not work.
+---
 
 Next, we will add support for ['Not Found' and deep links.](
 ./03-not-found-and-deep-links.md)

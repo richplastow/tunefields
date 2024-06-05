@@ -2,12 +2,12 @@ import { rmSync, writeFileSync } from 'node:fs';
 
 // Delete files and folders that are not needed for hosting on GitHub Pages.
 const rf = { recursive: true }; // equivalent to '-rf' in 'rm -rf'
-rmSync('docs/.nx-helpers', rf); // contains 3 files for Nx, none are needed
-rmSync('docs/make/.gitkeep'); // TODO probably remove some more
-rmSync('docs/next.config.js'); // not needed
-rmSync('docs/package.json'); // not needed
-rmSync('docs/public', rf); // contains 2 files, neither is needed
-rmSync('docs/view/.gitkeep'); // TODO probably remove some more
+try { rmSync('docs/.nx-helpers', rf) } catch(e) {} // contains 3 files for Nx, none are needed
+try { rmSync('docs/make/.gitkeep') } catch(e) {} // TODO probably remove some more
+try { rmSync('docs/next.config.js') } catch(e) {} // not needed
+try { rmSync('docs/package.json') } catch(e) {} // not needed
+try { rmSync('docs/public', rf) } catch(e) {} // contains 2 files, neither is needed
+try { rmSync('docs/view/.gitkeep') } catch(e) {} // TODO probably remove some more
 
 // Create top-level files needed for hosting on GitHub Pages. The .nojekyll file
 // (which is empty) stops GitHub Pages from ignoring underscore-prefixed folders.
