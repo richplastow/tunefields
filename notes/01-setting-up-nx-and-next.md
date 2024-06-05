@@ -272,7 +272,7 @@ You should see that apps/make/ and apps/make-e2e/ have been created.
 Take a look at the 'make' app with `npx nx dev make`, which should show 
 'Welcome make 👋' at <http://localhost:3000/>. `[ctrl-c]` to stop the server.
 
-## Create a local library
+## Create 'shared-ui', a local library
 
 A library contains a collection of React components.
 
@@ -392,7 +392,9 @@ export default UiFooter;
 
 ## Import the 'UiFooter' library into both apps
 
-Add it to apps/make/src/app/page.tsx and apps/view/src/app/page.tsx:
+Use the new `UiFooter` component in both apps. Note that the Nx Next say that
+`import { UiFooter } from '@tunefields/shared-ui';` should be used, which did
+not work for me. So in apps/make/src/app/page.tsx and apps/view/src/app/page.tsx:
 
 ```tsx
 'use client';
@@ -420,41 +422,59 @@ libs/shared/ui/src/lib/ui-footer/ui-footer.tsx immediately changes the app.
 
 ## Configure Next.js for static HTML export.
 
-Next.js can render dynamically on the server. But for the apps to be deployed to
-'GitHub Pages' (which is basically a CDN), update the apps/make/next.config.js
-apps/view/next.config.js files.
+Next.js is perhaps best known as a 'server side rendered' (SSR) framework, for
+hosting on a Node instance. But it also supports 'static site generation' (SSG),
+when a CDN is used for hosting. To switch Next to SSG mode, `output: 'export'`
+must be added to the apps/make/next.config.js and apps/view/next.config.js files.
+
+Additionally, for hosting on a non-root GitHub Pages domain, custom `basePath`
+and `distDir` values must be set.
 
 See <https://nextjs.org/docs/pages/api-reference/next-config-js> for more info.
 
-```js
-...
-const nextConfig = {
-...
-  compiler: {
-    // For other options, see https://styled-components.com/docs/tooling#babel-plugin
-    styledComponents: true,
-  },
+> Note that these 3 new config values would break `npx nx dev`, so they are only
+> set when the `--configuration=production` command line option is present.
 
-  basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
-  distDir: 'make', // build to docs/make/
-  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
-};
-```
+Update the apps/make/next.config.js file:
 
 ```js
 ...
-const nextConfig = {
+let nextConfig = {
 ...
-  compiler: {
-    // For other options, see https://styled-components.com/docs/tooling#babel-plugin
-    styledComponents: true,
-  },
+if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
+  console.log('"make": Detected --production, adding custom basePath, distDir and output');
+  nextConfig = {
+    ...nextConfig,
+    basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
+    distDir: 'make', // build to docs/make/
+    output: 'export', // build the app as static HTML, for hosting on GitHub Pages
+  };  
+}
 
-  basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
-  distDir: 'view', // build to docs/view/
-  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
-};
+const plugins = [
+...
 ```
+
+And update the apps/view/next.config.js file:
+
+```js
+...
+let nextConfig = {
+...
+if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
+  console.log('"view": Detected --production, adding custom basePath, distDir and output');
+  nextConfig = {
+    ...nextConfig,
+    basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
+    distDir: 'view', // build to docs/view/
+    output: 'export', // build the app as static HTML, for hosting on GitHub Pages
+  };  
+}
+
+const plugins = [
+...
+```
+
 
 Now running Nx's `build` command should generate static HTML files.
 
@@ -517,7 +537,7 @@ mv docs tunefields && static-server .
 Visit the two statically served apps at <http://localhost:9080/tunefields/make/>
 and <http://localhost:9080/tunefields/view/>.
 
-`[ctrl-c]` to stop `static-server .`.
+`[ctrl-c]` to stop `static-server`.
 
 ```bash
 mv tunefields docs
@@ -617,7 +637,7 @@ Add these 3 scripts to package.json:
 ```json
 ...
   "scripts": {
-    "build": "rm -rf docs && npx nx run-many -t build && node scripts/post-build.mjs",
+    "build": "rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs",
     "clean": "rm -rf .nx && rm -rf apps/make/.next && rm -rf apps/view/.next && npx nx reset",
     "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
   },
@@ -630,7 +650,7 @@ resulting docs/ folder for hosting on GitHub Pages:
 ```bash
 npm run build
 # > tunefields@0.0.1 build
-# > rm -rf docs && npx nx run-many -t build && node scripts/post-build.mjs
+# > rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs
 #    ✔  nx run make:build:production (38s)
 #    ✔  nx run view:build:production (40s)
 # ——————————————————————————————————————————————————————————————————————————————
@@ -664,7 +684,12 @@ Visit the two statically served apps at <http://localhost:9080/tunefields/make/>
 and <http://localhost:9080/tunefields/view/>, and also check that the 404.html
 file is being served, <http://localhost:9080/no-such-route>.
 
-`[ctrl-c]` to stop `static-server .`.
+`[ctrl-c]` to stop `static-server`.
+
+## Fix the page title and missing favicon.ico
+
+Next's 'Head' docs <https://nextjs.org/docs/pages/api-reference/components/head>
+have an example we can extend. 
 
 ## View the project graph
 

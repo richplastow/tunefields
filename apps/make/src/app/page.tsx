@@ -1,5 +1,6 @@
 'use client';
 
+import Head from 'next/head';
 import styled from 'styled-components';
 import { UiFooter } from 'shared-ui';
 
@@ -16,6 +17,7 @@ export default function Index() {
    */
   return (
     <StyledPage>
+      <Head>Welcome make 👋</Head>
       <div className="wrapper">
         <div className="container">
           <div id="welcome">

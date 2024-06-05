@@ -6,7 +6,7 @@ const { composePlugins, withNx } = require('@nx/next');
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
-const nextConfig = {
+let nextConfig = {
   nx: {
     // Set this to true if you would like to to use SVGR
     // See: https://github.com/gregberge/svgr
@@ -17,11 +17,17 @@ const nextConfig = {
     // For other options, see https://styled-components.com/docs/tooling#babel-plugin
     styledComponents: true,
   },
-
-  basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
-  distDir: 'make', // build to docs/make/
-  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
 };
+
+if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
+  console.log('"make": Detected --production, adding custom basePath, distDir and output');
+  nextConfig = {
+    ...nextConfig,
+    basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
+    distDir: 'make', // build to docs/make/
+    output: 'export', // build the app as static HTML, for hosting on GitHub Pages
+  };  
+}
 
 const plugins = [
   // Add more Next.js plugins to this list if needed.
