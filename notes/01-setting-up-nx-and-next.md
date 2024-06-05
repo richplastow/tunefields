@@ -1,8 +1,8 @@
-# Step 1: Setting up Nx
+# Step 1: Setting up Nx and Next
 
 [^ Notes](./00-notes.md)
 
-Nx is a JavaScript-friendly monorepo system, with generators for React.
+Nx is a JavaScript-friendly monorepo system, with generators for Next.js.
 
 Based on the [nx.dev '@nx/next' tutorial:](https://nx.dev/nx-api/next#nxnext)
 
@@ -147,8 +147,8 @@ npx nx dev view
 Visit <http://localhost:3000/> which should show 'Welcome view 👋'.
 
 In your browser's 'Network' developer tab, you should see eight `200` requests,
-plus a `101` for Webpack's hot module reloading. Later, the build will show just
-???? requests.
+plus a `101` for Webpack's hot module reloading. Later, the build will show ten
+`200` requests.
 
 `[ctrl-c]` to stop the server.
 
@@ -418,7 +418,128 @@ libs/shared/ui/src/lib/ui-footer/ui-footer.tsx immediately changes the app.
 > Another issue that Tailwind has at this point, is to leak the pink color into
 > the whole page! Using styled-components avoids that issue.
 
-## Modify the apps for GitHub pages
+## Configure Next.js for static HTML export.
+
+Next.js can render dynamically on the server. But for the apps to be deployed to
+'GitHub Pages' (which is basically a CDN), update the apps/make/next.config.js
+apps/view/next.config.js files.
+
+See <https://nextjs.org/docs/pages/api-reference/next-config-js> for more info.
+
+```js
+...
+const nextConfig = {
+...
+  compiler: {
+    // For other options, see https://styled-components.com/docs/tooling#babel-plugin
+    styledComponents: true,
+  },
+
+  basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
+  distDir: 'make', // build to docs/make/
+  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
+};
+```
+
+```js
+...
+const nextConfig = {
+...
+  compiler: {
+    // For other options, see https://styled-components.com/docs/tooling#babel-plugin
+    styledComponents: true,
+  },
+
+  basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
+  distDir: 'view', // build to docs/view/
+  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
+};
+```
+
+Now running Nx's `build` command should generate static HTML files.
+
+By default, these will appear in the apps/make/out/ and apps/view/out/ folders.
+The .gitignore file specifies 'out/' as a folder not to committed to the repo.
+
+To change the output folder to docs/make/ and docs/view/ (which GitHub Pages
+hosts at /tunefields/make/ and /tunefields/view/), the apps/make/project.json
+and apps/make/project.json file need updating.
+
+See <https://nx.dev/nx-api/next/executors/build> for the more info.
+
+```json
+{
+  "name": "make",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/make",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project make --web",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "docs"
+      }
+    }
+  }
+}
+```
+
+Now both apps are ready to be built. Nx can do that in parallel, with `run-many`:
+
+```bash
+npx nx run-many -t build
+#  NX   Running target build for 2 projects
+#    →  Executing 2/2 remaining tasks in parallel...
+#    ✔  nx run view:build:production (1m)
+#    ✔  nx run make:build:production (2m)
+# ——————————————————————————————————————————————————————————————————————————————
+#  NX   Successfully ran target build for 2 projects (2m)
+```
+
+You should see that the docs/make/ and docs/view/ folders have been created. My
+Mac says the docs/ folder is 1,547,114 bytes (1.7 MB on disk) for 69 items. The
+"69 items" does not include three files in the invisible docs/view/.nx-helpers/
+folder.
+
+```bash
+mv docs tunefields && static-server .
+# * Static server successfully started.
+# * Serving files at: http://localhost:9080
+# * Press Ctrl+C to shutdown.
+```
+
+Visit the two statically served app at <http://localhost:9080/tunefields/make/>
+and <http://localhost:9080/tunefields/view/>.
+
+`[ctrl-c]` to stop `static-server .`.
+
+```bash
+mv tunefields docs
+git add .
+git status
+# On branch main
+# Your branch is ahead of 'origin/main' by 2 commits.
+#   (use "git push" to publish your local commits)
+# Changes to be committed:
+#   (use "git restore --staged <file>..." to unstage)
+#     modified:   apps/make/next.config.js
+#     modified:   apps/make/project.json
+#     modified:   apps/view/next.config.js
+#     modified:   apps/view/project.json
+#     new file:   docs/.nx-helpers/compiled.js
+#     new file:   docs/.nx-helpers/compose-plugins.js
+#     new file:   docs/.nx-helpers/with-nx.js
+#     new file:   docs/make/.gitkeep
+#     new file:   docs/make/404.html
+# ...
+#     new file:   docs/view/index.html
+#     new file:   docs/view/index.txt
+git commit -am 'After initial static build of default Nx + Next apps, ‘make’ and ‘view’'
+```
 
 Remove `<base href="/" />` from the index.html of both apps. For example,
 apps/maker/index.html should become:

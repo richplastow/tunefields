@@ -17,6 +17,10 @@ const nextConfig = {
     // For other options, see https://styled-components.com/docs/tooling#babel-plugin
     styledComponents: true,
   },
+
+  basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
+  distDir: 'view', // build to docs/view/
+  output: 'export', // build the app as static HTML, for hosting on GitHub Pages
 };
 
 const plugins = [
