@@ -20,13 +20,14 @@ let nextConfig = {
 };
 
 if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
-  console.log('"view": Detected --production, adding custom basePath, distDir and output');
+  console.log('"view": Detected --production, adding custom basePath, distDir, output and trailingSlash');
   nextConfig = {
     ...nextConfig,
     basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
     distDir: 'view', // build to docs/view/
     output: 'export', // build the app as static HTML, for hosting on GitHub Pages
-  };  
+    trailingSlash: true, // build /about to /about/index.html not /about.html
+  };
 }
 
 const plugins = [

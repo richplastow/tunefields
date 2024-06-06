@@ -427,12 +427,14 @@ hosting on a Node instance. But it also supports 'static site generation' (SSG),
 when a CDN is used for hosting. To switch Next to SSG mode, `output: 'export'`
 must be added to the apps/make/next.config.js and apps/view/next.config.js files.
 
-Additionally, for hosting on a non-root GitHub Pages domain, custom `basePath`
-and `distDir` values must be set.
+Additionally, for hosting on a non-root GitHub Pages domain, custom `basePath`,
+`distDir` and `trailingSlash` values must be set.
 
-See <https://nextjs.org/docs/pages/api-reference/next-config-js> for more info.
+See <https://nextjs.org/docs/pages/api-reference/next-config-js> for more info,
+and <https://nextjs.org/docs/pages/api-reference/next-config-js/trailingSlash>
+in particular.
 
-> Note that these 3 new config values would break `npx nx dev`, so they are only
+> Note that these 4 new config values would break `npx nx dev`, so they are only
 > set when the `--configuration=production` command line option is present.
 
 Update the apps/make/next.config.js file:
@@ -442,13 +444,14 @@ Update the apps/make/next.config.js file:
 let nextConfig = {
 ...
 if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
-  console.log('"make": Detected --production, adding custom basePath, distDir and output');
+  console.log('"make": Detected --production, adding custom basePath, distDir, output and trailingSlash');
   nextConfig = {
     ...nextConfig,
     basePath: '/tunefields/make', // to host at richplastow.com/tunefields/make/
     distDir: 'make', // build to docs/make/
     output: 'export', // build the app as static HTML, for hosting on GitHub Pages
-  };  
+    trailingSlash: true, // build /about to /about/index.html not /about.html
+  };
 }
 
 const plugins = [
@@ -462,19 +465,19 @@ And update the apps/view/next.config.js file:
 let nextConfig = {
 ...
 if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make this a plugin
-  console.log('"view": Detected --production, adding custom basePath, distDir and output');
+  console.log('"view": Detected --production, adding custom basePath, distDir, output and trailingSlash');
   nextConfig = {
     ...nextConfig,
     basePath: '/tunefields/view', // to host at richplastow.com/tunefields/view/
     distDir: 'view', // build to docs/view/
     output: 'export', // build the app as static HTML, for hosting on GitHub Pages
-  };  
+    trailingSlash: true, // build /about to /about/index.html not /about.html
+  };
 }
 
 const plugins = [
 ...
 ```
-
 
 Now running Nx's `build` command should generate static HTML files.
 
