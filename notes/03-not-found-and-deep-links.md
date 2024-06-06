@@ -105,3 +105,24 @@ that there's no surprises. The three routes `make/about`, `make/about/` and
 
 After `[ctrl-c]` to stop `static-server` running, docs/make/about/index.html
 should have been added. Push it to your repo, to check it on GitHub Pages.
+
+## Check that Jest can find the new unit test
+
+```bash
+npx nx test make
+# > nx run make:test
+# > jest
+#  PASS   make  specs/about.spec.tsx
+#  PASS   make  specs/index.spec.tsx
+# Test Suites: 2 passed, 2 total
+# Tests:       2 passed, 2 total
+# Snapshots:   0 total
+# Time:        4.322 s
+# Ran all test suites.
+# ——————————————————————————————————————————————————————————————————————————————
+#  NX   Successfully ran target test for project make (7s)
+```
+
+## Add an end-to-end test, for navigating between pages
+
+TODO NEXT

@@ -28,7 +28,7 @@ Yes
 # ? Would you like to use the src/ directory? … 
 # Yes
 # No
-Yes
+No
 # ? Test runner to use for end to end (E2E) tests …
 # Playwright [ https://playwright.dev/ ]
 # Cypress [ https://www.cypress.io/ ]
@@ -221,8 +221,8 @@ npx nx g @nx/next:app make --directory=apps/make # can also add --dry-run
 playwright
 # ? Would you like to add React Router to this application? (y/N) › true
 true
-# ? Would you like to use `src/` directory? (Y/n) › true
-true
+# ? Would you like to use `src/` directory? (Y/n) › false
+false
 # ? What should be the project name and where should it be generated? …
 # ❯ As provided:
 #     Name: make
@@ -238,11 +238,11 @@ As provided
 # CREATE apps/make/public/favicon.ico
 # CREATE apps/make/specs/index.spec.tsx
 # CREATE apps/make/tsconfig.json
-# CREATE apps/make/src/app/api/hello/route.ts
-# CREATE apps/make/src/app/global.css
-# CREATE apps/make/src/app/page.tsx
-# CREATE apps/make/src/app/layout.tsx
-# CREATE apps/make/src/app/registry.tsx
+# CREATE apps/make/app/api/hello/route.ts
+# CREATE apps/make/app/global.css
+# CREATE apps/make/app/page.tsx
+# CREATE apps/make/app/layout.tsx
+# CREATE apps/make/app/registry.tsx
 # CREATE apps/make/project.json
 # CREATE apps/make-e2e/project.json
 # CREATE apps/make-e2e/src/example.spec.ts
@@ -394,7 +394,7 @@ export default UiFooter;
 
 Use the new `UiFooter` component in both apps. Note that the Nx Next say that
 `import { UiFooter } from '@tunefields/shared-ui';` should be used, which did
-not work for me. So in apps/make/src/app/page.tsx and apps/view/src/app/page.tsx:
+not work for me. So in apps/make/app/page.tsx and apps/view/app/page.tsx:
 
 ```tsx
 'use client';
@@ -691,7 +691,7 @@ file is being served, <http://localhost:9080/no-such-route>.
 
 ## Fix the page title and missing favicon.ico
 
-In apps/make/src/app/layout.tsx and apps/view/src/app/layout.tsx change the
+In apps/make/app/layout.tsx and apps/view/app/layout.tsx change the
 default `title` to `'Tunefields | make'` and `'Tunefields | view'`.
 
 Change the `description` to `'Create some music!'` and `'Explore some music!'`.
@@ -721,6 +721,17 @@ folder:
 ```json
 ...
   "ignorePatterns": ["!**/*", ".next/**/*", "out/**/*"],
+...
+```
+
+Update apps/make/app/registry.tsx and apps/view/app/registry.tsx to avoid an
+unnecessary linting warning:
+
+```tsx
+...
+    // See: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/65021
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (styledComponentsStyleSheet.instance as any).clearTag();
 ...
 ```
 
@@ -813,7 +824,7 @@ Add two scripts to `"scripts"`, in the top-level package.json file:
 ```
 
 To see this working, change the word "Welcome" to "Something Else" in the
-apps/view/src/app/page.tsx file.
+apps/view/app/page.tsx file.
 
 ```bash
 npm run e2e:view
