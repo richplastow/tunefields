@@ -1,3 +1,5 @@
+'use client'; // leads to an error if missing
+
 import Link from 'next/link';
 import styled from 'styled-components';
 
@@ -12,7 +14,7 @@ export default function About(props: AboutProps) {
   return (
     <StyledAbout>
       <h1>Welcome to About!</h1>
-      <Link href="/">‘make’ home</Link>
+      <Link href="/">‘view’ home</Link>
     </StyledAbout>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import styled from 'styled-components';
 import { UiFooter } from 'shared-ui';
 
@@ -16,6 +17,7 @@ export default function Index() {
    */
   return (
     <StyledPage>
+      <Link href="/about">‘view’ about page</Link>
       <div className="wrapper">
         <div className="container">
           <div id="welcome">

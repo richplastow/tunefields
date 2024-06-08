@@ -7,9 +7,11 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf docs && npx nx run-many -t build --configuration=production && node scripts/post-build.mjs",
+    "build:make": "rm -rf docs && npx nx build make --configuration=production && node scripts/post-build.mjs",
+    "build:view": "rm -rf docs && npx nx build view --configuration=production && node scripts/post-build.mjs",
     "clean": "rm -rf .nx && rm -rf dist && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
-    "e2e:make": "npx nx e2e make-e2e && node scripts/post-build.mjs",
-    "e2e:view": "npx nx e2e view-e2e && node scripts/post-build.mjs",
+    "e2e:make": "npx nx e2e make-e2e",
+    "e2e:view": "npx nx e2e view-e2e",
     "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
   },
   "dependencies": {

@@ -4,14 +4,11 @@
 
 ## Add the 'about' page to the 'make' app
 
-> TODO fix `npx nx g @nx/next:page` - it always makes a file called page.tsx,
-> and the generated .spec.tsx file is placed in the wrong folder.
-
 Based on <https://nx.dev/nx-api/next/generators/page>, use NX's 'page' generator
-to create an 'about' page for the 'make' app:
+to create an 'about' page for the 'view' app:
 
 ```bash
-npx nx g @nx/next:page make --directory=apps/make/pages --name=about --nameAndDirectoryFormat=as-provided --withTests
+npx nx g @nx/next:page view --directory=apps/view/app/about --name=about --withTests
 #  NX  Generating @nx/next:page
 # ? Which stylesheet format would you like to use? … 
 # CSS
@@ -23,62 +20,30 @@ npx nx g @nx/next:page make --directory=apps/make/pages --name=about --nameAndDi
 # None
 styled-components
 # ? Where should the page be generated? …
-# ❯ As provided: apps/make/pages/about.ts
-#   Derived:     apps/make/pages/about/about.ts
-As provided
-# CREATE apps/make/pages/page.spec.tsx
-# CREATE apps/make/pages/page.tsx
-mv apps/make/pages/page.spec.tsx apps/make/specs/about.spec.tsx
-mv apps/make/pages/page.tsx apps/make/pages/about.tsx
+# ❯ As provided: apps/view/app/about/about.ts
+#   Derived:     apps/view/app/about/about/about.ts
+As provided # this is ignored, and appears to be an @nx/next bug TODO fix!
+# ? Where should the page be generated? … 
+# ❯ As provided: apps/view/app/about/page.tsx
+#   Derived:     apps/view/apps/view/app/about/about/page.tsx
+As provided # this is the path that will be used
+# CREATE apps/view/app/about/page.spec.tsx
+# CREATE apps/view/app/about/page.tsx
 ```
 
 You should see that two files have been created. 
 
-Change `import About from './page'` to `import About from '../pages/about'`:
+## Add simple links
+
+Update the new apps/view/app/about/page.tsx page, and also the original homepage
+at apps/view/app/page.tsx:
 
 ```tsx
-import { render } from '@testing-library/react';
+'use client'; // leads to an error if missing
 
-import About from '../pages/about';
-
-describe('About', () => {
-  it('should render successfully', () => {
-    const { baseElement } = render(<About />);
-    expect(baseElement).toBeTruthy();
-  });
-});
-```
-
-```tsx
-import styled from 'styled-components';
-
-/* eslint-disable-next-line */
-export interface AboutProps {}
-
-const StyledAbout = styled.div`
-  color: pink;
-`;
-
-export default function About(props: AboutProps) {
-  return (
-    <StyledAbout>
-      <h1>Welcome to About!</h1>
-    </StyledAbout>
-  );
-}
-```
-
-To check it works, run `npx nx dev make` and visit <http://localhost:3000/about>,
-where you should see "Welcome to About!" in pink.
-
-## Add initial links
-
-Update the apps/make/pages/about.tsx page, and also apps/make/src/app/page.tsx:
-
-```tsx
 import Link from 'next/link';
 ...
-      <Link href="/">‘make’ home</Link>
+      <Link href="/">‘view’ home</Link>
     </StyledAbout>
 ```
 
@@ -89,40 +54,124 @@ import Link from 'next/link';
 ...
   return (
     <StyledPage>
-      <Link href="/about">‘make’ about page</Link>
+      <Link href="/about">‘view’ about page</Link>
 ...
 ```
 
-Assuming `npx nx dev make` is still running, you should be able to navigate
-between the two pages.
+To check it works, run `npx nx dev view` and visit <http://localhost:3000/about>,
+where you should see "Welcome to About!" in pink. You should be able to navigate
+between the two pages by clicking the links.
 
 ## Check that navigation and deep-linking works for the SSG build
 
-Run `npm run build && npm start` and then deep-link to the 'make' about page
-<http://localhost:9080/tunefields/make/about>, and click the navigation to check
-that there's no surprises. The three routes `make/about`, `make/about/` and
-`make/about/index.html` should all work.
+Run `npm run build && npm start` and then deep-link to the 'view' about page
+<http://localhost:9080/tunefields/view/about>, and click the navigation to check
+that there's no surprises. The three routes `view/about`, `view/about/` and
+`view/about/index.html` should all work.
 
-After `[ctrl-c]` to stop `static-server` running, docs/make/about/index.html
+After `[ctrl-c]` to stop `static-server` running, docs/view/about/index.html
 should have been added. Push it to your repo, to check it on GitHub Pages.
 
 ## Check that Jest can find the new unit test
 
 ```bash
-npx nx test make
-# > nx run make:test
+npx nx test view
+# > nx run view:test
 # > jest
-#  PASS   make  specs/about.spec.tsx
-#  PASS   make  specs/index.spec.tsx
+#  PASS   view  app/about/page.spec.tsx
+#  PASS   view  specs/index.spec.tsx
 # Test Suites: 2 passed, 2 total
 # Tests:       2 passed, 2 total
 # Snapshots:   0 total
-# Time:        4.322 s
+# Time:        3.945 s
 # Ran all test suites.
 # ——————————————————————————————————————————————————————————————————————————————
-#  NX   Successfully ran target test for project make (7s)
+#  NX   Successfully ran target test for project view (6s)
 ```
+
+## Fix Playwright configuration
+
+The generated Playwright e2e tests are configured to run `next start`. Next's
+`start` command is not going to work for our GitHub Pages hosting setup - see
+the `npm run build` and `npm start` custom scripts described in the earlier
+['Setting up Nx and Next'](./01-setting-up-nx-and-next.md) notes.
+
+Add two scripts to the top-level package.json file:
+
+```json
+...
+    "build:make": "rm -rf docs && npx nx build make --configuration=production && node scripts/post-build.mjs",
+    "build:view": "rm -rf docs && npx nx build view --configuration=production && node scripts/post-build.mjs",
+...
+```
+
+Modify the apps/make-e2e/playwright.config.ts configuration file, to use port
+`9080` instead of `3000`, and `npm run build:make && npm start` instead of
+`npx nx start make`:
+
+```ts
+...
+// For CI, you may want to set BASE_URL to the deployed application.
+const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:9080';
+...
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'rm -rf tunefields && npm run clean && npm run build:make && npm start',
+    url: 'http://127.0.0.1:9080',
+    reuseExistingServer: !process.env.CI,
+    cwd: workspaceRoot,
+  },
+...
+```
+
+And similarly for apps/view-e2e/playwright.config.ts for the 'view' app:
+
+```ts
+...
+// For CI, you may want to set BASE_URL to the deployed application.
+const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:9080';
+...
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'rm -rf tunefields && npm run clean && npm run build:view && npm start',
+    url: 'http://127.0.0.1:9080',
+    reuseExistingServer: !process.env.CI,
+    cwd: workspaceRoot,
+  },
+...
+```
+
+> Note that, at a later stage, it will be possible to write Playwright e2e tests
+> that traverse all three apps in a single test. For example, editing a profile
+> in the 'admin' app, and then checking it updates correctly in the 'view' app.
+
+TODO NEXT fix Nx's generator <https://medium.com/ngconf/extending-an-existing-nx-generator-4ae0e7b53484>
 
 ## Add an end-to-end test, for navigating between pages
 
-TODO NEXT
+Rename apps/view-e2e/src/example.spec.ts to apps/view-e2e/src/navigation.spec.ts
+and change it to:
+
+```ts
+import { test, expect } from '@playwright/test';
+
+test('navigates from homepage to about and back again', async ({ page }) => {
+  
+  // Expect the <H1> of the homepage to contain the 'view' welcome message.
+  await page.goto('/tunefields/view/');
+  expect(await page.locator('h1').innerText()).toContain('Welcome view');
+
+  // Expect clicking "‘view’ about page" to navigate to the about page.
+  await page.getByText('‘view’ about page').click();
+  await expect(page).toHaveURL(/.*\/tunefields\/view\/about\/$/);
+  expect(await page.locator('h1').innerText()).toContain('Welcome to About!');
+
+  // Expect clicking "‘view’ home" to return to the homepage.
+  await page.getByText('‘view’ home').click();
+  await expect(page).toHaveURL(/.*\/tunefields\/view\/$/);
+  expect(await page.locator('h1').innerText()).toContain('Welcome view');
+});
+```
+
+Use `npm run e2e:view` to invoke just the 'view' end-to-end tests. 
+

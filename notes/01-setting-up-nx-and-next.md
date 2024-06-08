@@ -780,8 +780,11 @@ npx nx run-many -t test
 #  NX   Successfully ran target test for 3 projects (7s)
 ```
 
-Run end-to-end tests on both apps. These need to be done one at a time. If you
-encounter a Playwright error, `npm run clean` may help.
+Run end-to-end tests on both apps. These currently need to be done one at a time.
+
+TODO allow all tests for all apps to be run from one command
+
+If you encounter a Playwright error, `npm run clean` may help.
 
 > If your /Users/richplastow/Library/Caches/ms-playwright/ folder is missing or
 > does not have the correct binaries, for any reason, run the Playwright update
@@ -876,6 +879,12 @@ npm run e2e:view
 If an e2e test times out, you may need to run `rm -rf docs`.
 
 Other kinds of failed e2e tests may need `npm run clean && rm -rf docs`.
+
+There's an underlying problem going on here, that the generated Playwright e2e
+tests are configured to run `next start`. Next's `start` command is not going to
+work for our GitHub Pages hosting setup - see the `npm run build` and `npm start`
+custom scripts described above. The solution: ['Fix Playwright configuration'.](
+./03-not-found-and-deep-links.md#fix-playwright-configuration)
 
 ---
 
