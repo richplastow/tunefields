@@ -175,3 +175,79 @@ test('navigates from homepage to about and back again', async ({ page }) => {
 
 Use `npm run e2e:view` to invoke just the 'view' end-to-end tests. 
 
+## Use Next's `getStaticPaths()` to generate language routes
+
+```bash
+npx nx g @nx/next:page view --directory=apps/view/app/[lang] --name=[lang] --withTests
+#  NX  Generating @nx/next:page
+# ? Which stylesheet format would you like to use? … 
+# CSS
+# SASS(.scss)       [ https://sass-lang.com          ]
+# LESS              [ https://lesscss.org            ]
+# styled-components [ https://styled-components.com ]
+# emotion           [ https://emotion.sh            ]
+# styled-jsx        [ https://www.npmjs.com/package/styled-jsx ]
+# None
+styled-components
+# ? Where should the page be generated? …
+# ❯ As provided: apps/view/app/about/about.ts
+#   Derived:     apps/view/app/about/about/about.ts
+As provided # this is ignored, and appears to be an @nx/next bug TODO fix!
+# ? Where should the page be generated? … 
+# ❯ As provided: apps/view/app/about/page.tsx
+#   Derived:     apps/view/apps/view/app/about/about/page.tsx
+As provided # this is the path that will be used
+# CREATE apps/view/app/[lang]/page.spec.tsx
+# CREATE apps/view/app/[lang]/page.tsx
+```
+
+Add `'use client';` to the top of the apps/view/app/[lang]/page.tsx file. Now
+`npx nx dev view` will catch all routes, eg <http://localhost:3000/anything>.
+
+Based on <https://nextjs.org/docs/app/building-your-application/routing/internationalization#static-generation> create a apps/view/app/[lang]/layout.tsx
+file to specify some commonly spoken languages:
+
+```tsx
+import '../global.css';
+import { StyledComponentsRegistry } from '../registry';
+
+export const metadata = {
+  title: 'Tunefields | view',
+  description: 'Explore some music!',
+  icons: { icon: './favicon.ico' },
+};
+
+const langs = [
+  { lang: 'en' },
+  { lang: 'en-GB' },
+  { lang: 'en-US' },
+  { lang: 'es' },
+  { lang: 'pt' },
+];
+const supportsLang = (l: string) => langs.some(({ lang }) => lang === l);
+
+export async function generateStaticParams() {
+  return langs;
+}
+
+export default function RootLayout({
+  children, params,
+}: {
+  children: React.ReactNode;
+  params: {
+    lang: string;
+  };
+}) {
+  const { lang } = params;
+  return (
+    <html lang="{supportsLang(lang) ? lang : 'en'}">
+      <body>
+        <StyledComponentsRegistry>
+          lang: {supportsLang(lang) ? lang : `en (${lang} not supported)`}
+          {children}
+        </StyledComponentsRegistry>
+      </body>
+    </html>
+  );
+}
+```
