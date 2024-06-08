@@ -1,6 +1,7 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+
 import styled from 'styled-components';
 import { UiFooter } from 'shared-ui';
 
@@ -10,6 +11,7 @@ const StyledPage = styled.div`
 `;
 
 export default function Index() {
+  const t = useTranslations('homepage');
   /*
    * Replace the elements below with your own.
    *
@@ -17,13 +19,12 @@ export default function Index() {
    */
   return (
     <StyledPage>
-      <Link href="/about">‘make’ about page</Link>
       <div className="wrapper">
         <div className="container">
           <div id="welcome">
             <h1>
               <span> Hello there, </span>
-              Welcome make 👋
+              {t('title')} 👋
             </h1>
           </div>
 

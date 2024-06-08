@@ -1,5 +1,7 @@
 //@ts-check
 
+const createNextIntlPlugin = require('next-intl/plugin');
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 
@@ -31,8 +33,8 @@ if (process.env.NX_TASK_TARGET_CONFIGURATION === 'production') { // TODO make th
 }
 
 const plugins = [
-  // Add more Next.js plugins to this list if needed.
   withNx,
+  createNextIntlPlugin('./i18n.ts'),
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
