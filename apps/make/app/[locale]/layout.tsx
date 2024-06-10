@@ -1,6 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { unstable_setRequestLocale } from 'next-intl/server';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-intl/server';
 
 import './global.css';
 import { StyledComponentsRegistry } from './registry';
@@ -11,11 +10,17 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export const metadata = {
-  title: 'Tunefields | make',
-  description: 'Create some music!',
-  icons: { icon: './favicon.ico' },
-};
+export async function generateMetadata(
+  { params: { locale }}:
+  { params: { locale: string }}
+) {
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+  return {
+    description: t('description'), // eg "Create some music!"
+    icons: t('icons.icon'), // eg "./favicon.ico"
+    title: t('title'), // eg "Tunefields | make"
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -35,7 +40,7 @@ export default async function RootLayout({
         <StyledComponentsRegistry>
           <NextIntlClientProvider messages={messages}>
             {children}
-          </NextIntlClientProvider>  
+          </NextIntlClientProvider>
         </StyledComponentsRegistry>
       </body>
     </html>

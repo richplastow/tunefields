@@ -12,7 +12,10 @@
     "clean": "rm -rf .nx && rm -rf dist && rm -rf apps/make/.next rm -rf apps/make/out && rm -rf apps/view/.next && rm -rf apps/view/out && npx nx reset",
     "e2e:make": "npx nx e2e make-e2e",
     "e2e:view": "npx nx e2e view-e2e",
-    "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs"
+    "start": "mv docs tunefields && static-server -n tunefields/404.html . && mv tunefields docs",
+    "test:make": "npx nx test make",
+    "test:view": "npx nx test view",
+    "test": "npx nx run-many -t test"
   },
   "dependencies": {
     "next": "14.2.3",

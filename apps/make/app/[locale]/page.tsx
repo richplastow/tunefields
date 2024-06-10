@@ -1,9 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-
-import styled from 'styled-components';
 import { UiFooter } from 'shared-ui';
+import styled from 'styled-components';
 
 const StyledPage = styled.div`
   .page {

@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "Tunefields | make",
+    "description": "Crie alguma música!",
+    "icons": { "icon": "./favicon.ico" }
+  },
   "homepage": {
     "title": "Oi make!"
   }

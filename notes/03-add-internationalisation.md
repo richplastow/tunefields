@@ -27,11 +27,21 @@ Based on <https://next-intl-docs.vercel.app/docs/getting-started/app-router/with
 ```bash
 mkdir apps/make/messages
 echo '{
+  "metadata": {
+    "description": "Create some music!",
+    "icons": { "icon": "./favicon.ico" },
+    "title": "Tunefields | make"
+  },
   "homepage": {
     "title": "Hello make!"
   }
 }' > apps/make/messages/en.json
 echo '{
+  "metadata": {
+    "description": "Crie alguma música!",
+    "icons": { "icon": "./favicon.ico" },
+    "title": "Tunefields | make"
+  },
   "homepage": {
     "title": "Oi make!"
   }
@@ -67,14 +77,14 @@ Create the apps/make/i18n.ts file:
 ```ts
 import { notFound } from 'next/navigation';
 import { getRequestConfig } from 'next-intl/server';
- 
+
 // Can be imported from a shared config.
 const locales = ['en', 'pt'];
- 
+
 export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming `locale` parameter is valid.
   if (! locales.includes(locale as any)) notFound();
- 
+
   return {
     messages: (await import(`./messages/${locale}.json`)).default
   };
@@ -87,15 +97,15 @@ Create the apps/make/middleware.ts file:
 
 ```ts
 import createMiddleware from 'next-intl/middleware';
- 
+
 export default createMiddleware({
   // A list of all locales that are supported.
   locales: ['en', 'pt'],
- 
+
   // Used when no locale matches.
   defaultLocale: 'en'
 });
- 
+
 export const config = {
   // Match only internationalised path names.
   matcher: ['/', '/(en|pt)/:path*']
@@ -116,16 +126,22 @@ apps/make/app/[locale]/layout.tsx should now be:
 
 ```tsx
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-intl/server';
 
 import './global.css';
 import { StyledComponentsRegistry } from './registry';
 
-export const metadata = {
-  title: 'Tunefields | make',
-  description: 'Create some music!',
-  icons: { icon: './favicon.ico' },
-};
+export async function generateMetadata(
+  { params: { locale }}:
+  { params: { locale: string }}
+) {
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+  return {
+    description: t('description'), // eg "Create some music!"
+    icons: t('icons.icon'), // eg "./favicon.ico"
+    title: t('title'), // eg "Tunefields | make"
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -143,7 +159,7 @@ export default async function RootLayout({
         <StyledComponentsRegistry>
           <NextIntlClientProvider messages={messages}>
             {children}
-          </NextIntlClientProvider>  
+          </NextIntlClientProvider>
         </StyledComponentsRegistry>
       </body>
     </html>
@@ -194,9 +210,7 @@ the special 'next-intl' `unstable_setRequestLocale()` workaround:
 
 ```tsx
 import { NextIntlClientProvider } from 'next-intl';
-import { unstable_setRequestLocale } from 'next-intl/server';
-import { getMessages } from 'next-intl/server';
-
+import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-intl/server';
 ...
 
 // TODO import from a shared config
@@ -205,6 +219,7 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
+export async function generateMetadata(
 ...
 
 export default async function RootLayout({
